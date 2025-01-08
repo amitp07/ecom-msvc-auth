@@ -1,0 +1,1 @@
+DROP TABLE msvc_users IF EXISTS;

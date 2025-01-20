@@ -12,6 +12,7 @@ func InitDb() *sql.DB {
 
 	var db *sql.DB
 	var err error
+	log.Println("Connecting on connection ..", env.Env.DbConnectionStr)
 	if db, err = sql.Open("postgres", env.Env.DbConnectionStr); err != nil {
 		log.Fatal(err)
 	}

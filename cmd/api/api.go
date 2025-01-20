@@ -10,6 +10,7 @@ import (
 func (app *application) run() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+	r.Use(cors)
 
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -17,8 +18,10 @@ func (app *application) run() http.Handler {
 		})
 
 		r.Route("/users", func(r chi.Router) {
+			// r.Get("/", app.findAll)
 			r.Post("/create", app.createUser)
 			r.Get("/{id}", app.findById)
+			r.Post("/login", app.login)
 		})
 
 	})

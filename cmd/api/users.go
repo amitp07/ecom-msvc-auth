@@ -32,6 +32,53 @@ func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (app *application) login(w http.ResponseWriter, r *http.Request) {
+
+	type userType struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	var user userType
+
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		app.logger.Printf("%v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Bad request"))
+		return
+	}
+
+	dbuser, err := app.models.UserModel.FindByUsername(user.Username)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		app.logger.Printf("%s", err.Error())
+		return
+	}
+
+	msg := "Either Username or Password is not correct"
+	if user.Username != dbuser.Username {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte(msg))
+		return
+	}
+	if user.Password != dbuser.Password {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte(msg))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	res, err := json.Marshal(dbuser)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Write(res)
+
+}
+
 func (app *application) findById(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
